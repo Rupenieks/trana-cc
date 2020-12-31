@@ -10,8 +10,29 @@ const User = require("../db/models/User");
  * @param - /login
  * @description - User login
  */
-router.post('/login', (req: any, res: any) => {
+router.post('/login', async (req : any, res : any) => {
+
+    const {
+        email,
+        password
+    } = req.body;
+
+    try {
+        let user = await User.findOne({
+            email, password
+        });
+
+        if (user) {
+            return res.status(200).json({
+                msg: "User found.",
+                success: true
+            });
+        }
+    } catch (err) {
+
+    }
     console.log("Login received.");
+
 })
 
 module.exports = router;

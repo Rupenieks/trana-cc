@@ -11,12 +11,17 @@ const UserSchema = mongoose.Schema({
     required: true
   },
   admin: {
-    type: Boolean,
-    required: false
+    type: Boolean
   },
   createdAt: {
     type: Date,
     default: Date.now()
+  },
+  notes: {
+    type: [{
+      title: String,
+      content: String
+    }]
   }
 });
 
