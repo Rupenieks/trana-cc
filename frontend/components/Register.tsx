@@ -1,9 +1,18 @@
 import React, { useState } from 'react'
+import register from "../services/auth.service"
+import AuthService from "../services/auth.service";
 
 export default function Register() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [repeatPassword, setRepeatPassword] = useState('');
+
+    function register(e){
+        e.preventDefault();
+        AuthService.register(email, password);
+
+    }
+
 
     return (
         <div className="register-container">
@@ -27,7 +36,7 @@ export default function Register() {
                     </label>
                 </div>
                 <div className="label-container">
-                     <input type="submit" value="Submit" />
+                     <input type="submit" value="Submit" onClick={register}  />
                 </div>
             </form>
 

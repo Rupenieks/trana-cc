@@ -1,8 +1,14 @@
 import React, { useState } from 'react'
+import authService from '../services/auth.service';
 
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+
+    function login(e){
+        e.preventDefault();
+        authService.login(email, password);
+    }
 
     return (
         <div className="login-container">
@@ -20,7 +26,7 @@ export default function Login() {
                     </label>
                 </div>
                 <div className="label-container">
-                     <input type="submit" value="Submit" />
+                     <input type="submit" value="Submit" onClick={login} />
                 </div>
             </form>
 

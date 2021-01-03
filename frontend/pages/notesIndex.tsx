@@ -1,7 +1,17 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import authHeader from '../services/auth-header';
+import { useRouter } from 'next/router';
 
 export default function notesIndex() {
+    const router = useRouter();
 
+    useEffect(() => {
+        // Check if user object exists
+        if (authHeader() === {}) {
+            router.push('/');
+        }
+        return;
+    }, []);
     
     return (
         <div className="nodesIndex-container">

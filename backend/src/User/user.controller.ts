@@ -14,11 +14,12 @@ export class UserController {
   async registerUser(@Body() userAuthDto: UserAuthDto): Promise<HttpResponse> {
     
     try {
-        await this.userService.register(userAuthDto);
+        const user = await this.userService.register(userAuthDto);
         
         return {
             success: true,
-            msg: 'Registered succesfully.'
+            msg: 'Registered succesfully.',
+            data: user
         };
     } catch (err) {
         throw new HttpException({
@@ -33,11 +34,12 @@ export class UserController {
   async loginUser(@Body() userAuthDto: UserAuthDto): Promise<HttpResponse> {
 
     try {
-        await this.userService.login(userAuthDto);
+        const user = await this.userService.login(userAuthDto);
         
         return {
             success: true,
-            msg: 'Logged in succesfully.'
+            msg: 'Logged in succesfully.',
+            data: user
         };
     } catch (err) {
         throw new HttpException({
@@ -70,7 +72,7 @@ export class UserController {
   async getNotesByEmail(@Body() getNotesByEmailDto: GetNotesByEmailDto): Promise<HttpResponse> {
     
     try {
-        let notes = await this.userService.getNotesByEmail(getNotesByEmailDto);
+        const notes = await this.userService.getNotesByEmail(getNotesByEmailDto);
         
         return {
             success: true,
@@ -89,7 +91,7 @@ export class UserController {
   async addNote(@Body() addNoteDto: AddNoteDto): Promise<HttpResponse> {
     
     try {
-        let notes = await this.userService.addNote(addNoteDto);
+        const notes = await this.userService.addNote(addNoteDto);
         
         return {
             success: true,
@@ -108,7 +110,7 @@ export class UserController {
   async updateNote(@Body() updateNoteDto: UpdateNoteDto): Promise<HttpResponse> {
     
     try {
-        let notes = await this.userService.updateNote(updateNoteDto);
+        const notes = await this.userService.updateNote(updateNoteDto);
         
         return {
             success: true,
@@ -127,7 +129,7 @@ export class UserController {
   async removeNote(@Body() removeNoteDto: RemoveNoteDto): Promise<HttpResponse> {
     
     try {
-        let notes = await this.userService.removeNote(removeNoteDto);
+        const notes = await this.userService.removeNote(removeNoteDto);
         
         return {
             success: true,
