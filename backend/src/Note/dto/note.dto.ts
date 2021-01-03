@@ -10,7 +10,7 @@ export class AddNoteDto {
 
     @IsString()
     @IsNotEmpty()
-    email: string;
+    id: string;
 }
 
 export class UpdateNoteDto {
@@ -23,25 +23,25 @@ export class UpdateNoteDto {
 
     @IsString()
     @IsNotEmpty()
-    email: string;
+    id: string;
 
-    id: string
+    noteId: string
 }
 
 export class RemoveNoteDto {
     @IsString()
     @IsNotEmpty()
-    email: string;
+    id: string;
 
-    id: string
+    noteId: string
 }
 
-export class GetNotesByEmailDto {
+export class GetNotesById {
     @IsString()
     @IsNotEmpty()
-    email: string;
+    id: string;
 
     @IsString()
     @IsNotEmpty()
-    notesEmail: string;
+    userId: string;
 }

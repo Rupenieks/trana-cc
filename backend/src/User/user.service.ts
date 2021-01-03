@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Role } from 'src/auth/enums/role.enum';
 import { Note } from 'src/Note/note.schema';
-import { AddNoteDto, GetNotesByEmailDto, RemoveNoteDto, UpdateNoteDto } from '../Note/dto/note.dto';
+import { AddNoteDto, GetNotesById, RemoveNoteDto, UpdateNoteDto } from '../Note/dto/note.dto';
 import { UserAuthDto } from './dto/user-auth.dto';
 import { User, UserDocument } from './user.schema';
 const bcrypt = require('bcrypt');
@@ -13,15 +13,19 @@ const BCRYPT_SALT_ROUNDS = 10;
 export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  async findOne(email: string) {
-    return await this.userModel.findOne({ email });
+  async findOneById(id: string) {
+    return await this.userModel.findOne({_id: id});
+  }
+
+  async findOneByEmail(email: string) {
+    return await this.userModel.findOne({email: email});
   }
 
   async register(userAuthDto: UserAuthDto): Promise<User> {
     const newUser = new this.userModel(userAuthDto);
 
     try {
-        let user = await this.findOne(userAuthDto.email);
+        let user = await this.findOneByEmail(userAuthDto.email);
         
         if (user) {
             throw new Error('User with email address already exists.');
@@ -52,7 +56,7 @@ export class UserService {
   async login(userAuthDto: UserAuthDto): Promise<User> {
 
     try {
-        let user = await this.findOne(userAuthDto.email);
+        let user = await this.findOneByEmail(userAuthDto.email);
 
         if (!user) {
             throw new Error('User with given email address not found.');
@@ -72,7 +76,7 @@ export class UserService {
   async getAllUsers(userAuthDto: UserAuthDto): Promise<User[]> {
 
     try {
-        let user = await this.findOne(userAuthDto.email);
+        let user = await this.findOneById(userAuthDto.email);
 
         if (!user) {
             throw new Error('User with given email address not found.');
@@ -91,10 +95,10 @@ export class UserService {
     }
   }
 
-  async getNotesByEmail(getNotesByEmailDto: GetNotesByEmailDto): Promise<Note[]> {
+  async getNotesById(getNotesByIdDto: GetNotesById): Promise<Note[]> {
 
     try {
-        let admin = await this.findOne(getNotesByEmailDto.email);
+        let admin = await this.findOneById(getNotesByIdDto.id);
 
         if (!admin) {
             throw new Error('Admin not found.');
@@ -104,7 +108,7 @@ export class UserService {
             throw new Error('User not admin.')
         }
         
-        let user = await this.findOne(getNotesByEmailDto.notesEmail);
+        let user = await this.findOneById(getNotesByIdDto.userId);
 
         if (!user) {
             throw new Error('User not found.')
@@ -122,10 +126,11 @@ export class UserService {
   async addNote(addNoteDto: AddNoteDto): Promise<Note[]> {
 
     try {
-        let user = await this.findOne(addNoteDto.email);
+       
+        let user = await this.findOneById(addNoteDto.id);
 
         if (!user) {
-            throw new Error('Could not find user note belongs to.');
+            throw new Error('Could not find user.');
         }
 
         let note = {
@@ -150,8 +155,8 @@ export class UserService {
 
     try {
         let user = await this.userModel.findOneAndUpdate({
-            email: updateNoteDto.email,
-            'notes._id' : updateNoteDto.id},
+            _id: updateNoteDto.id,
+            'notes._id' : updateNoteDto.noteId},
             {"notes.$.title" : updateNoteDto.title,
             "notes.$.content" : updateNoteDto.content},
           {new : true},
@@ -174,12 +179,12 @@ export class UserService {
 
     try {
         let user = await this.userModel.findOne({
-            email: removeNoteDto.email}, (err, user) => {
+            _id: removeNoteDto.id}, (err, user) => {
                 if (err) {
                     throw new Error('Not found.');
                 }
 
-                user.notes.pull(removeNoteDto.id);
+                user.notes.pull(removeNoteDto.noteId);
                 return user.save();
             });
 

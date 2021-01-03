@@ -1,13 +1,17 @@
+import { useRouter } from 'next/router';
 import React, { useState } from 'react'
 import authService from '../services/auth.service';
 
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const router = useRouter();
 
     function login(e){
         e.preventDefault();
-        authService.login(email, password);
+        if (authService.login(email, password)) {
+            router.push('/notesIndex');
+        }
     }
 
     return (
@@ -32,16 +36,17 @@ export default function Login() {
 
             <style jsx>
                 {`
-                .login-containter {
-                    width: 100%;
-                    height: 100%;
-                    display: flex;
-                    flex-direction: column;
-                }
+                    .login-containter {
+                        width: 100%;
+                        height: 100%;
+                        display: flex;
+                        flex-direction: column;
+                    }
 
-                .label-container {
-                    flex: 1;
-                }`}
+                    .label-container {
+                        flex: 1;
+                    }
+                    `}
             </style>
         </div>
     )

@@ -8,30 +8,28 @@ async function register(email, password){
     password,
   });
 
-  console.log(response);
-
   return response;
 };
 
-async function login(email, password){
-    let response
+async function login(email, password) : Promise<boolean> {
+    let response;
     
     try {
         response = await axios
-        .post(API_URL + "user/login", {
+        .post(API_URL + "auth/login", {
           email,
           password,
         }); 
 
-        console.log(response);
-
-        if (response.data.accessToken) {
+        if (response.data.access_token) {
             if (typeof window !== "undefined") {
                 localStorage.setItem("user", JSON.stringify(response.data));
             }
+        } else {
+            return false;
         }
-
-        return response.data;
+        
+        return true;
     } catch (err) {
         console.log(err);
     }

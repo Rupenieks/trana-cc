@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpException, HttpStatus, Post, Req, Request, Res, Response, SetMetadata } from '@nestjs/common';
 import { HttpResponse } from '../types/HttpResponse';
-import { AddNoteDto, GetNotesByEmailDto, RemoveNoteDto, UpdateNoteDto } from '../Note/dto/note.dto';
+import { AddNoteDto, GetNotesById, RemoveNoteDto, UpdateNoteDto } from '../Note/dto/note.dto';
 import { UserAuthDto } from './dto/user-auth.dto';
 import { UserService } from './user.service';
 import { Roles } from 'src/auth/roles.decorator';
@@ -68,11 +68,11 @@ export class UserController {
     }
   }
 
-  @Get('get-notes-by-email')
-  async getNotesByEmail(@Body() getNotesByEmailDto: GetNotesByEmailDto): Promise<HttpResponse> {
+  @Get('get-notes-by-id')
+  async getNotesById(@Body() getNotesByEmailDto: GetNotesById): Promise<HttpResponse> {
     
     try {
-        const notes = await this.userService.getNotesByEmail(getNotesByEmailDto);
+        const notes = await this.userService.getNotesById(getNotesByEmailDto);
         
         return {
             success: true,

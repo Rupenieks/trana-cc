@@ -13,7 +13,7 @@ export class AuthService {
 		private jwtService: JwtService) {}
 
 	async validateUser(email : string, password: string): Promise<User> {
-		const user = await this.userService.findOne(email);
+		const user = await this.userService.findOneByEmail(email);
 
 		if (!await bcrypt.compare(password, user.password)) {
 			throw new Error('Incorrect password.');
@@ -22,18 +22,14 @@ export class AuthService {
 		return user;
 	}
 
-	async validateAdmin(email: string) : Promise<boolean> {
-		const user = await this.userService.findOne(email);
-		
-		const isAdimn = user.admin;
-
-		return isAdimn; 
-	}
-
 	async login(userAuthDto : UserAuthDto) {
-		const payload = { username: userAuthDto.email, sub: userAuthDto.email };
+		const user = await this.userService.findOneByEmail(userAuthDto.email);
+
+		const payload = { username: user.email, sub: user._id };
+		
 		return {
-		  access_token: this.jwtService.sign(payload),
+			data: user,
+		  	access_token: this.jwtService.sign(payload),
 		};
 	  }
 }
