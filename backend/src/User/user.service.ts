@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Note } from 'src/Note/note.schema';
-import { AddNoteDto, RemoveNoteDto, UpdateNoteDto } from '../Note/dto/note.dto';
+import { AddNoteDto, GetNotesByEmailDto, RemoveNoteDto, UpdateNoteDto } from '../Note/dto/note.dto';
 import { UserAuthDto } from './dto/user-auth.dto';
 import { User, UserDocument } from './user.schema';
 const bcrypt = require('bcrypt');
@@ -65,6 +65,56 @@ export class UserService {
     }
   }
 
+  async getAllUsers(userAuthDto: UserAuthDto): Promise<User[]> {
+
+    try {
+        let user = await this.userModel.findOne({email: userAuthDto.email});
+
+        if (!user) {
+            throw new Error('User with given email address not found.');
+        }
+
+        if (!user.admin) {
+            throw new Error('User not admin.')
+        }
+
+        let users = await this.userModel.find();
+
+        return users;
+
+    } catch (err) {
+        throw err;
+    }
+  }
+
+  async getNotesByEmail(getNotesByEmailDto: GetNotesByEmailDto): Promise<Note[]> {
+
+    try {
+        let admin = await this.userModel.findOne({email: getNotesByEmailDto.email});
+
+        if (!admin) {
+            throw new Error('Admin not found.');
+        }
+
+        if (!admin.admin) {
+            throw new Error('User not admin.')
+        }
+        
+        let user = await this.userModel.findOne({email: getNotesByEmailDto.notesEmail});
+
+        if (!user) {
+            throw new Error('User not found.')
+        }
+
+        const notes = user.notes;
+
+        return notes;
+
+    } catch (err) {
+        throw err;
+    }
+  }
+
   async addNote(addNoteDto: AddNoteDto): Promise<Note[]> {
 
     try {
@@ -107,7 +157,9 @@ export class UserService {
               }
           });
 
-        return user.notes;
+        const notes = user.notes;
+
+        return notes;
 
     } catch (err) { 
         throw err;
@@ -127,7 +179,9 @@ export class UserService {
                 return user.save();
             });
 
-        return user.notes;
+            const notes = user.notes;
+
+            return notes;
     } catch (err) { 
         throw err;
     }

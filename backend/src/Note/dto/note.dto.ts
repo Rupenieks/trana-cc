@@ -35,3 +35,13 @@ export class RemoveNoteDto {
 
     id: string
 }
+
+export class GetNotesByEmailDto {
+    @IsString()
+    @IsNotEmpty()
+    email: string;
+
+    @IsString()
+    @IsNotEmpty()
+    notesEmail: string;
+}
