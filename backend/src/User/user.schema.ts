@@ -1,6 +1,7 @@
 import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { IsEmail } from 'class-validator';
 import { Document } from 'mongoose';
+import { Note, NoteSchema } from 'src/Note/note.schema';
 
 export type UserDocument = User & Document;
 
@@ -19,11 +20,9 @@ export class User {
   @Prop({default: Date.now()})
   createdAt: Date
   
-  @Prop(raw({
-    title: { type: String },
-    content: { type: String }
-  }))
-  notes: Record<string, any>;
+  @Prop({ type: [NoteSchema] })
+  notes: Note[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+

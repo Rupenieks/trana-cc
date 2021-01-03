@@ -6,11 +6,11 @@ import { User, UserSchema } from './user.schema';
 require('dotenv').config()
 
 @Module({
-  imports: [    MongooseModule.forRoot(process.env.MONGO_URL, {
+  imports: [MongooseModule.forRoot(process.env.MONGO_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    "user": "ron",
-    "pass": "man123"
+    "user": process.env.MONGO_USER,
+    "pass": process.env.MONGO_PASSWORD
   }), MongooseModule.forFeature([{name: User.name, schema: UserSchema}])],
   controllers: [UserController],
   providers: [UserService],
