@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { Role } from 'src/auth/enums/role.enum';
 import { Note } from 'src/Note/note.schema';
 import { AddNoteDto, GetNotesByEmailDto, RemoveNoteDto, UpdateNoteDto } from '../Note/dto/note.dto';
 import { UserAuthDto } from './dto/user-auth.dto';
@@ -12,14 +13,17 @@ const BCRYPT_SALT_ROUNDS = 10;
 export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
+  async findOne(email: string) {
+    return await this.userModel.findOne({ email });
+  }
+
   async register(userAuthDto: UserAuthDto): Promise<User> {
     const newUser = new this.userModel(userAuthDto);
 
     try {
-        let user = await this.userModel.findOne({ email: userAuthDto.email })
+        let user = await this.findOne(userAuthDto.email);
         
         if (user) {
-            console.log('User already exists.')
             throw new Error('User with email address already exists.');
         }
 
@@ -33,12 +37,12 @@ export class UserService {
         newUser.password = hashedPassword;
         newUser.notes = [];
         newUser.admin = false;
+        newUser.roles = [Role.User];
 
 
         newUser.save();
         
     } catch (err) {
-        console.log(err);
         throw new Error('Failed to create new user. Please try again.');
     }
 
@@ -48,7 +52,7 @@ export class UserService {
   async login(userAuthDto: UserAuthDto): Promise<User> {
 
     try {
-        let user = await this.userModel.findOne({email: userAuthDto.email});
+        let user = await this.findOne(userAuthDto.email);
 
         if (!user) {
             throw new Error('User with given email address not found.');
@@ -68,7 +72,7 @@ export class UserService {
   async getAllUsers(userAuthDto: UserAuthDto): Promise<User[]> {
 
     try {
-        let user = await this.userModel.findOne({email: userAuthDto.email});
+        let user = await this.findOne(userAuthDto.email);
 
         if (!user) {
             throw new Error('User with given email address not found.');
@@ -90,7 +94,7 @@ export class UserService {
   async getNotesByEmail(getNotesByEmailDto: GetNotesByEmailDto): Promise<Note[]> {
 
     try {
-        let admin = await this.userModel.findOne({email: getNotesByEmailDto.email});
+        let admin = await this.findOne(getNotesByEmailDto.email);
 
         if (!admin) {
             throw new Error('Admin not found.');
@@ -100,7 +104,7 @@ export class UserService {
             throw new Error('User not admin.')
         }
         
-        let user = await this.userModel.findOne({email: getNotesByEmailDto.notesEmail});
+        let user = await this.findOne(getNotesByEmailDto.notesEmail);
 
         if (!user) {
             throw new Error('User not found.')
@@ -118,7 +122,7 @@ export class UserService {
   async addNote(addNoteDto: AddNoteDto): Promise<Note[]> {
 
     try {
-        let user = await this.userModel.findOne({email: addNoteDto.email});
+        let user = await this.findOne(addNoteDto.email);
 
         if (!user) {
             throw new Error('Could not find user note belongs to.');

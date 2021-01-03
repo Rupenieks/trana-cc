@@ -1,6 +1,7 @@
 import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { IsEmail } from 'class-validator';
 import { Document } from 'mongoose';
+import { Role } from 'src/auth/enums/role.enum';
 import { Note, NoteSchema } from 'src/Note/note.schema';
 
 export type UserDocument = User & Document;
@@ -22,6 +23,9 @@ export class User {
   
   @Prop({ type: [NoteSchema] })
   notes: Note[];
+
+  @Prop()
+  roles: [Role]
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

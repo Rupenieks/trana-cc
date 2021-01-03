@@ -1,8 +1,10 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Post, Req, Request, Res, Response } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Post, Req, Request, Res, Response, SetMetadata } from '@nestjs/common';
 import { HttpResponse } from '../types/HttpResponse';
 import { AddNoteDto, GetNotesByEmailDto, RemoveNoteDto, UpdateNoteDto } from '../Note/dto/note.dto';
 import { UserAuthDto } from './dto/user-auth.dto';
 import { UserService } from './user.service';
+import { Roles } from 'src/auth/roles.decorator';
+import { Role } from 'src/auth/enums/role.enum';
 
 @Controller('user')
 export class UserController {
@@ -45,9 +47,9 @@ export class UserController {
     }
   }
 
+ 
   @Get('get-all')
   async getAllUsers(@Body() userAuthDto: UserAuthDto): Promise<HttpResponse> {
-
     try {
         let users = await this.userService.getAllUsers(userAuthDto);
         
