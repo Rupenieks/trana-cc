@@ -27,17 +27,36 @@ const removeNote = (id: string, noteId: string) => {
     }, { headers: authHeader() });
 };
 
-const getNotesById = (id: string, userId: string) => {
-    return axios.get(API_URL + "get-notes-by-id", { 
-        params: {
-            id,
-            userId
+async function getNotesById(id: string){
+    const response = await axios.post(API_URL + "get-notes-by-id",  
+        {
+            id
         },
-        headers: authHeader() });
+        { headers: authHeader() });
+
+    const notes = response.data.data;
+
+    return notes;
 }
 
-const getAllUsers = () => {
-    return axios.get(API_URL + "get-all", { headers: authHeader() });
+async function getAllUsers(){
+    const response = await axios.get(API_URL + "get-all", { headers: authHeader() });
+    
+    const users = response.data.data;
+
+    return users;
+}
+
+async function getProfile(id: string){
+    const response = await axios.post(API_URL + "profile", 
+    {
+        id
+    },
+    { headers: authHeader() });
+    
+    const profile = response.data.data;
+    
+    return profile;
 }
 
 export default {
@@ -45,5 +64,6 @@ export default {
     updateNote,
     removeNote,
     getNotesById,
-    getAllUsers
+    getAllUsers,
+    getProfile
 };

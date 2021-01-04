@@ -36,12 +36,8 @@ export class RemoveNoteDto {
     noteId: string
 }
 
-export class GetNotesById {
+export class GetNotesByIdDto {
     @IsString()
     @IsNotEmpty()
     id: string;
-
-    @IsString()
-    @IsNotEmpty()
-    userId: string;
 }

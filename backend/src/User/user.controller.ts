@@ -1,10 +1,11 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Post, Req, Request, Res, Response, SetMetadata } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Param, Post, Req, Request, Res, Response, SetMetadata } from '@nestjs/common';
 import { HttpResponse } from '../types/HttpResponse';
-import { AddNoteDto, GetNotesById, RemoveNoteDto, UpdateNoteDto } from '../Note/dto/note.dto';
+import { AddNoteDto, GetNotesByIdDto, RemoveNoteDto, UpdateNoteDto } from '../Note/dto/note.dto';
 import { UserAuthDto } from './dto/user-auth.dto';
 import { UserService } from './user.service';
 import { Roles } from 'src/auth/roles.decorator';
 import { Role } from 'src/auth/enums/role.enum';
+import { UserProfileDto } from './dto/user-profile.dto';
 
 @Controller('user')
 export class UserController {
@@ -49,6 +50,25 @@ export class UserController {
     }
   }
 
+  @Post('profile')
+  async getProfile(@Body() userProfileDto: UserProfileDto): Promise<HttpResponse> {
+    console.log(userProfileDto);
+    try {
+        const user = await this.userService.findOneById(userProfileDto.id);
+        
+        return {
+            success: true,
+            msg: 'Retrieved user.',
+            data: user
+        };
+    } catch (err) {
+        throw new HttpException({
+            status: HttpStatus.BAD_REQUEST,
+            error: err.message,
+          }, HttpStatus.BAD_REQUEST);
+    }
+  }
+
  
   @Get('get-all')
   async getAllUsers(@Body() userAuthDto: UserAuthDto): Promise<HttpResponse> {
@@ -68,11 +88,11 @@ export class UserController {
     }
   }
 
-  @Get('get-notes-by-id')
-  async getNotesById(@Body() getNotesByEmailDto: GetNotesById): Promise<HttpResponse> {
+  @Post('get-notes-by-id')
+  async getNotesById(@Body() getNotesByIdDto: GetNotesByIdDto): Promise<HttpResponse> {
     
     try {
-        const notes = await this.userService.getNotesById(getNotesByEmailDto);
+        const notes = await this.userService.getNotesById(getNotesByIdDto);
         
         return {
             success: true,
@@ -108,7 +128,7 @@ export class UserController {
 
   @Post('update-note')
   async updateNote(@Body() updateNoteDto: UpdateNoteDto): Promise<HttpResponse> {
-    
+    console.log(updateNoteDto);
     try {
         const notes = await this.userService.updateNote(updateNoteDto);
         

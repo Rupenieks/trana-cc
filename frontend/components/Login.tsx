@@ -10,7 +10,7 @@ export default function Login() {
     function login(e){
         e.preventDefault();
         if (authService.login(email, password)) {
-            router.push('/notesIndex');
+            router.push('/notes');
         }
     }
 

@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Role } from 'src/auth/enums/role.enum';
 import { Note } from 'src/Note/note.schema';
-import { AddNoteDto, GetNotesById, RemoveNoteDto, UpdateNoteDto } from '../Note/dto/note.dto';
+import { AddNoteDto, GetNotesByIdDto, RemoveNoteDto, UpdateNoteDto } from '../Note/dto/note.dto';
 import { UserAuthDto } from './dto/user-auth.dto';
 import { User, UserDocument } from './user.schema';
 const bcrypt = require('bcrypt');
@@ -42,7 +42,6 @@ export class UserService {
         newUser.notes = [];
         newUser.admin = false;
         newUser.roles = [Role.User];
-
 
         newUser.save();
         
@@ -95,20 +94,10 @@ export class UserService {
     }
   }
 
-  async getNotesById(getNotesByIdDto: GetNotesById): Promise<Note[]> {
+  async getNotesById(getNotesByIdDto: GetNotesByIdDto): Promise<Note[]> {
 
     try {
-        let admin = await this.findOneById(getNotesByIdDto.id);
-
-        if (!admin) {
-            throw new Error('Admin not found.');
-        }
-
-        if (!admin.admin) {
-            throw new Error('User not admin.')
-        }
-        
-        let user = await this.findOneById(getNotesByIdDto.userId);
+        let user = await this.findOneById(getNotesByIdDto.id);
 
         if (!user) {
             throw new Error('User not found.')
@@ -124,7 +113,6 @@ export class UserService {
   }
 
   async addNote(addNoteDto: AddNoteDto): Promise<Note[]> {
-
     try {
        
         let user = await this.findOneById(addNoteDto.id);
@@ -176,7 +164,6 @@ export class UserService {
   }
 
   async removeNote(removeNoteDto: RemoveNoteDto): Promise<Note[]> {
-
     try {
         let user = await this.userModel.findOne({
             _id: removeNoteDto.id}, (err, user) => {

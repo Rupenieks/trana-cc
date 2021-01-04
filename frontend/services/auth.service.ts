@@ -1,4 +1,5 @@
 import axios from "axios";
+import userService from "./user.service";
 
 const API_URL = "http://localhost:4001/";
 
@@ -48,9 +49,33 @@ const getCurrentUser = () => {
     }
 };
 
+async function refreshCurrentUser(){
+    let user = getCurrentUser();
+    console.log(user);
+    let newUserObject;
+
+    if (user.data) {
+        newUserObject = await userService.getProfile(user.data._id);
+    } else {
+        newUserObject = await userService.getProfile(user._id);
+    }
+    
+    console.log(newUserObject);
+
+    if (newUserObject !== undefined) {
+        if (typeof window !== "undefined") {
+            localStorage.setItem("user", JSON.stringify(newUserObject));
+            return newUserObject;
+        }
+    } else {
+        return null;
+    }
+}
+
 export default {
   register,
   login,
   logout,
   getCurrentUser,
+  refreshCurrentUser
 };

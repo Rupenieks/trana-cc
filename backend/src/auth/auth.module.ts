@@ -7,7 +7,7 @@ import { UserService } from 'src/User/user.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from 'src/User/user.schema';
 import { JwtModule, JwtService } from '@nestjs/jwt';
-import { jwtConstants } from './contants';
+import { jwtConstants } from './constants';
 import { JwtStrategy } from './jwt.strategy';
 
 @Module({
