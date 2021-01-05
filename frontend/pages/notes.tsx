@@ -17,8 +17,12 @@ export default function notes() {
 	const [isAdmin, setIsAdmin] = useState(false);
 
 	useEffect(() => {
-
-		getUser();
+		if (!authService.checkAuthenticated()) {
+			router.push('/');
+		} else {
+			getUser();
+		}
+		
 	}, [])
 
 	useEffect(() => {
@@ -36,6 +40,12 @@ export default function notes() {
 		}
 
 	}, [user]);
+
+	function logout() {
+		authService.logout();
+
+		router.push('/');
+	}
 
 	async function getUser() {
 		let user = await userService.getProfile();
@@ -80,7 +90,7 @@ export default function notes() {
 				</div>
 
 				<div className="logout-container">
-					<button>Logout</button>
+					<button onClick={logout}>Logout</button>
 				</div>
 
 			</div>

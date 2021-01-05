@@ -1,11 +1,20 @@
-import { useState } from "react";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import Login from '../components/Login';
 import Register from "../components/Register";
+import authService from "../services/auth.service";
 
 
 export default function Home() {
-
+  const router = useRouter();
   const [authType, setAuthType] = useState(true);
+
+  useEffect(() => {
+		if (authService.checkAuthenticated()) {
+			router.push('/notes');
+		} 
+		
+	}, [])
 
   return (
     <div className="container">

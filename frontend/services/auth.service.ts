@@ -43,15 +43,22 @@ const logout = () => {
     }
 };
 
-const getCurrentUser = () => {
+const checkAuthenticated = () => {
+    let user;
     if (typeof window !== "undefined") {
-        return JSON.parse(localStorage.getItem("user"));
+        user = JSON.parse(localStorage.getItem("user"));
     }
+
+    if (!user) {
+        return false;
+    }
+
+    return true;
 };
 
 export default {
   register,
   login,
   logout,
-  getCurrentUser
+  checkAuthenticated
 };
