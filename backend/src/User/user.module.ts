@@ -15,4 +15,5 @@ require('dotenv').config()
   controllers: [UserController],
   providers: [UserService],
 })
+
 export class UserModule {};

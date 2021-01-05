@@ -11,25 +11,25 @@ import { UserProfileDto } from './dto/user-profile.dto';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post('register')
-  async registerUser(@Body() userAuthDto: UserAuthDto): Promise<HttpResponse> {
+  // @Post('register')
+  // async registerUser(@Body() userAuthDto: UserAuthDto): Promise<HttpResponse> {
     
-    try {
-        const user = await this.userService.register(userAuthDto);
+  //   try {
+  //       const user = await this.userService.register(userAuthDto);
         
-        return {
-            success: true,
-            msg: 'Registered succesfully.',
-            data: user
-        };
-    } catch (err) {
-        throw new HttpException({
-            status: HttpStatus.BAD_REQUEST,
-            error: err.message,
-          }, HttpStatus.BAD_REQUEST);
-    }
+  //       return {
+  //           success: true,
+  //           msg: 'Registered succesfully.',
+  //           data: user
+  //       };
+  //   } catch (err) {
+  //       throw new HttpException({
+  //           status: HttpStatus.BAD_REQUEST,
+  //           error: err.message,
+  //         }, HttpStatus.BAD_REQUEST);
+  //   }
 
-  }
+  // }
 
   @Post('login')
   async loginUser(@Body() userAuthDto: UserAuthDto): Promise<HttpResponse> {

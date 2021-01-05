@@ -29,7 +29,32 @@ export class AuthService {
 		
 		return {
 			data: user,
-		  	access_token: this.jwtService.sign(payload),
+			access_token: this.jwtService.sign(payload),
 		};
-	  }
+	}
+
+	async register(userAuthDto: UserAuthDto) {
+
+		try {
+			const user = await this.userService.findOneByEmail(userAuthDto.email);
+			
+			if (user) {
+				throw new Error('User with email address already exists.');
+			}
+
+		} catch (err) {
+			throw err;
+		}
+
+		let newUser;
+
+		try {
+			newUser = await this.userService.create(userAuthDto);
+
+		} catch (err) {
+			throw new Error('Failed to create new user.');
+		}
+		
+		return true;
+	}
 }

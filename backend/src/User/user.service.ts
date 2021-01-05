@@ -13,174 +13,164 @@ const BCRYPT_SALT_ROUNDS = 10;
 export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  async findOneById(id: string) {
-    return await this.userModel.findOne({_id: id});
-  }
+	async findOneById(id: string) {
+		return await this.userModel.findOne({_id: id});
+	}
 
-  async findOneByEmail(email: string) {
-    return await this.userModel.findOne({email: email});
-  }
+	async findOneByEmail(email: string) {
+		return await this.userModel.findOne({email: email});
+	}
+	
+	async create(userAuthDto: UserAuthDto) {
+		const newUser = new this.userModel(userAuthDto);
 
-  async register(userAuthDto: UserAuthDto): Promise<User> {
-    const newUser = new this.userModel(userAuthDto);
+		try {
+			let hashedPassword = await bcrypt.hash(userAuthDto.password, BCRYPT_SALT_ROUNDS);
+			
+			newUser.password = hashedPassword;
+			newUser.notes = [];
+			newUser.admin = false;
+			newUser.roles = [Role.User];
 
-    try {
-        let user = await this.findOneByEmail(userAuthDto.email);
-        
-        if (user) {
-            throw new Error('User with email address already exists.');
-        }
+			newUser.save();
+			
+		} catch (err) {
+			throw new Error('Failed to create new user. Please try again.');
+		}
 
-    } catch (err) {
-        throw err;
-    }
+		return newUser;
+	}
+	
 
-    try {
-        let hashedPassword = await bcrypt.hash(userAuthDto.password, BCRYPT_SALT_ROUNDS);
-        
-        newUser.password = hashedPassword;
-        newUser.notes = [];
-        newUser.admin = false;
-        newUser.roles = [Role.User];
+	async login(userAuthDto: UserAuthDto): Promise<User> {
 
-        newUser.save();
-        
-    } catch (err) {
-        throw new Error('Failed to create new user. Please try again.');
-    }
+		try {
+			let user = await this.findOneByEmail(userAuthDto.email);
 
-    return newUser;
-  }
+			if (!user) {
+				throw new Error('User with given email address not found.');
+			}
 
-  async login(userAuthDto: UserAuthDto): Promise<User> {
+			if (!await bcrypt.compare(userAuthDto.password, user.password)) {
+				throw new Error('Incorrect password.');
+			}
 
-    try {
-        let user = await this.findOneByEmail(userAuthDto.email);
+			return user;
 
-        if (!user) {
-            throw new Error('User with given email address not found.');
-        }
+		} catch (err) { 
+			throw err;
+		}
+	}
 
-        if (!await bcrypt.compare(userAuthDto.password, user.password)) {
-            throw new Error('Incorrect password.');
-        }
+	async getAllUsers(userAuthDto: UserAuthDto): Promise<User[]> {
 
-        return user;
+		try {
+			let user = await this.findOneById(userAuthDto.email);
 
-    } catch (err) { 
-        throw err;
-    }
-  }
+			if (!user) {
+				throw new Error('User with given email address not found.');
+			}
 
-  async getAllUsers(userAuthDto: UserAuthDto): Promise<User[]> {
+			if (!user.admin) {
+				throw new Error('User not admin.')
+			}
 
-    try {
-        let user = await this.findOneById(userAuthDto.email);
+			let users = await this.userModel.find();
 
-        if (!user) {
-            throw new Error('User with given email address not found.');
-        }
+			return users;
 
-        if (!user.admin) {
-            throw new Error('User not admin.')
-        }
+		} catch (err) {
+			throw err;
+		}
+	}
 
-        let users = await this.userModel.find();
+	async getNotesById(getNotesByIdDto: GetNotesByIdDto): Promise<Note[]> {
 
-        return users;
+		try {
+			let user = await this.findOneById(getNotesByIdDto.id);
 
-    } catch (err) {
-        throw err;
-    }
-  }
+			if (!user) {
+				throw new Error('User not found.')
+			}
 
-  async getNotesById(getNotesByIdDto: GetNotesByIdDto): Promise<Note[]> {
+			const notes = user.notes;
 
-    try {
-        let user = await this.findOneById(getNotesByIdDto.id);
+			return notes;
 
-        if (!user) {
-            throw new Error('User not found.')
-        }
+		} catch (err) {
+			throw err;
+		}
+	}
 
-        const notes = user.notes;
+	async addNote(addNoteDto: AddNoteDto): Promise<Note[]> {
+		try {
+		
+			let user = await this.findOneById(addNoteDto.id);
 
-        return notes;
+			if (!user) {
+				throw new Error('Could not find user.');
+			}
 
-    } catch (err) {
-        throw err;
-    }
-  }
+			let note = {
+				title: addNoteDto.title,
+				content: addNoteDto.content
+			};
 
-  async addNote(addNoteDto: AddNoteDto): Promise<Note[]> {
-    try {
-       
-        let user = await this.findOneById(addNoteDto.id);
+			user.notes.push(note);
 
-        if (!user) {
-            throw new Error('Could not find user.');
-        }
+			user.save();
 
-        let note = {
-            title: addNoteDto.title,
-            content: addNoteDto.content
-        };
+			const updatedNotes = user.notes;
 
-        user.notes.push(note);
+			return updatedNotes;
 
-        user.save();
+		} catch (err) { 
+			throw err;
+		}
+	}
 
-        const updatedNotes = user.notes;
+	async updateNote(updateNoteDto: UpdateNoteDto): Promise<Note[]> {
 
-        return updatedNotes;
+		try {
+			let user = await this.userModel.findOneAndUpdate({
+				_id: updateNoteDto.id,
+				'notes._id' : updateNoteDto.noteId},
+				{"notes.$.title" : updateNoteDto.title,
+				"notes.$.content" : updateNoteDto.content},
+			{new : true},
+			(err) => {
+				if (err) {
+					throw new Error('Could not update note. Please try again.');
+				}
+			});
 
-    } catch (err) { 
-        throw err;
-    }
-  }
+			const notes = user.notes;
 
-  async updateNote(updateNoteDto: UpdateNoteDto): Promise<Note[]> {
+			return notes;
 
-    try {
-        let user = await this.userModel.findOneAndUpdate({
-            _id: updateNoteDto.id,
-            'notes._id' : updateNoteDto.noteId},
-            {"notes.$.title" : updateNoteDto.title,
-            "notes.$.content" : updateNoteDto.content},
-          {new : true},
-         (err) => {
-              if (err) {
-                throw new Error('Could not update note. Please try again.');
-              }
-          });
+		} catch (err) { 
+			throw err;
+		}
+	}
 
-        const notes = user.notes;
+	async removeNote(removeNoteDto: RemoveNoteDto): Promise<Note[]> {
+		try {
+			let user = await this.userModel.findOne({
+				_id: removeNoteDto.id}, (err, user) => {
+					if (err) {
+						throw new Error('Not found.');
+					}
 
-        return notes;
+					user.notes.pull(removeNoteDto.noteId);
+					return user.save();
+				});
 
-    } catch (err) { 
-        throw err;
-    }
-  }
+				const notes = user.notes;
 
-  async removeNote(removeNoteDto: RemoveNoteDto): Promise<Note[]> {
-    try {
-        let user = await this.userModel.findOne({
-            _id: removeNoteDto.id}, (err, user) => {
-                if (err) {
-                    throw new Error('Not found.');
-                }
-
-                user.notes.pull(removeNoteDto.noteId);
-                return user.save();
-            });
-
-            const notes = user.notes;
-
-            return notes;
-    } catch (err) { 
-        throw err;
-    }
-  }
+				return notes;
+		} catch (err) { 
+			throw err;
+		}
+	}
 }
 
