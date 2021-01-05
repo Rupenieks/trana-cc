@@ -145,6 +145,8 @@ export default function notes() {
 
 				<div className="email-container">
 					{isAdmin && 'ADMIN'}
+					{/*
+					// @ts-ignore */}
 					{user !== undefined && <p>{user.email}</p>}
 					
 				</div>
