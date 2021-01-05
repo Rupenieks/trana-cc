@@ -10,10 +10,6 @@ require('dotenv').config()
 @Module({
   imports: [UserModule, AuthModule],
   controllers: [AppController],
-  providers: [
-  {
-    provide: APP_GUARD,
-    useClass: RolesGuard,
-  },],
+  providers: [],
 })
 export class AppModule {}

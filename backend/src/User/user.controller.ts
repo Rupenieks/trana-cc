@@ -1,79 +1,25 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Param, Post, Req, Request, Res, Response, SetMetadata } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Param, Post, Req, Request, Res, Response, SetMetadata, UseGuards } from '@nestjs/common';
 import { HttpResponse } from '../types/HttpResponse';
 import { AddNoteDto, GetNotesByIdDto, RemoveNoteDto, UpdateNoteDto } from '../Note/dto/note.dto';
 import { UserAuthDto } from './dto/user-auth.dto';
 import { UserService } from './user.service';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { Role } from 'src/auth/enums/role.enum';
-import { UserProfileDto } from './dto/user-profile.dto';
+import { RolesGuard } from 'src/auth/roles.guard';
 
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
+  
 
-  // @Post('register')
-  // async registerUser(@Body() userAuthDto: UserAuthDto): Promise<HttpResponse> {
-    
-  //   try {
-  //       const user = await this.userService.register(userAuthDto);
-        
-  //       return {
-  //           success: true,
-  //           msg: 'Registered succesfully.',
-  //           data: user
-  //       };
-  //   } catch (err) {
-  //       throw new HttpException({
-  //           status: HttpStatus.BAD_REQUEST,
-  //           error: err.message,
-  //         }, HttpStatus.BAD_REQUEST);
-  //   }
-
-  // }
-
-  @Post('login')
-  async loginUser(@Body() userAuthDto: UserAuthDto): Promise<HttpResponse> {
-
-    try {
-        const user = await this.userService.login(userAuthDto);
-        
-        return {
-            success: true,
-            msg: 'Logged in succesfully.',
-            data: user
-        };
-    } catch (err) {
-        throw new HttpException({
-            status: HttpStatus.BAD_REQUEST,
-            error: err.message,
-          }, HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  @Post('profile')
-  async getProfile(@Body() userProfileDto: UserProfileDto): Promise<HttpResponse> {
-    console.log(userProfileDto);
-    try {
-        const user = await this.userService.findOneById(userProfileDto.id);
-        
-        return {
-            success: true,
-            msg: 'Retrieved user.',
-            data: user
-        };
-    } catch (err) {
-        throw new HttpException({
-            status: HttpStatus.BAD_REQUEST,
-            error: err.message,
-          }, HttpStatus.BAD_REQUEST);
-    }
-  }
-
- 
+  @Roles(Role.Admin)
   @Get('get-all')
   async getAllUsers(@Body() userAuthDto: UserAuthDto): Promise<HttpResponse> {
+    
     try {
-        let users = await this.userService.getAllUsers(userAuthDto);
+        let users = await this.userService.getAllUsers();
         
         return {
             success: true,
@@ -88,6 +34,7 @@ export class UserController {
     }
   }
 
+  @Roles(Role.User)
   @Post('get-notes-by-id')
   async getNotesById(@Body() getNotesByIdDto: GetNotesByIdDto): Promise<HttpResponse> {
     
@@ -107,6 +54,7 @@ export class UserController {
     }
   }
 
+  @Roles(Role.User)
   @Post('add-note')
   async addNote(@Body() addNoteDto: AddNoteDto): Promise<HttpResponse> {
     
@@ -126,9 +74,10 @@ export class UserController {
     }
   }
 
+  @Roles(Role.User)
   @Post('update-note')
   async updateNote(@Body() updateNoteDto: UpdateNoteDto): Promise<HttpResponse> {
-    console.log(updateNoteDto);
+
     try {
         const notes = await this.userService.updateNote(updateNoteDto);
         
@@ -145,6 +94,7 @@ export class UserController {
     }
   }
 
+  @Roles(Role.User)
   @Post('remove-note')
   async removeNote(@Body() removeNoteDto: RemoveNoteDto): Promise<HttpResponse> {
     

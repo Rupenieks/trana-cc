@@ -62,21 +62,10 @@ export class UserService {
 		}
 	}
 
-	async getAllUsers(userAuthDto: UserAuthDto): Promise<User[]> {
+	async getAllUsers(): Promise<User[]> {
 
 		try {
-			let user = await this.findOneById(userAuthDto.email);
-
-			if (!user) {
-				throw new Error('User with given email address not found.');
-			}
-
-			if (!user.admin) {
-				throw new Error('User not admin.')
-			}
-
 			let users = await this.userModel.find();
-
 			return users;
 
 		} catch (err) {

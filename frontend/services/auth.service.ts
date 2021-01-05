@@ -51,7 +51,7 @@ const getCurrentUser = () => {
 
 async function refreshCurrentUser(){
     let user = getCurrentUser();
-    console.log(user);
+   
     let newUserObject;
 
     if (user.data) {
@@ -60,7 +60,6 @@ async function refreshCurrentUser(){
         newUserObject = await userService.getProfile(user._id);
     }
     
-    console.log(newUserObject);
 
     if (newUserObject !== undefined) {
         if (typeof window !== "undefined") {
