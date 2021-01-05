@@ -6,7 +6,7 @@ import { LocalAuthGuard } from './auth/local-auth.guard';
 import { HttpResponse } from './types/HttpResponse';
 import { UserAuthDto } from './User/dto/user-auth.dto';
 
-@Controller('')
+@Controller()
 export class AppController {
     constructor(private authService: AuthService) {}
 
@@ -35,7 +35,7 @@ export class AppController {
     }
 
     @UseGuards(JwtAuthGuard)
-    @Post('profile')
+    @Get('profile')
     getProfile(@Request() req) {
       return req.user;
     }

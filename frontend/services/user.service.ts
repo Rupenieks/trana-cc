@@ -1,18 +1,20 @@
 import axios from "axios";
 import authHeader from "./auth-header";
 
-const API_URL = "http://localhost:4001/user/";
-
-const addNote = (title: string, content: string, id: string) => {
-    return axios.post(API_URL + "add-note", {
+const API_URL = "http://localhost:4001/";
+async function addNote(title: string, content: string, id: string){
+    console.log(title, "content: ", content, "id", id);
+    const response = await axios.post(API_URL + "user/add-note", {
         title,
         content, 
         id
     }, { headers: authHeader() });
+    console.log(response);
+    return response;
 };
 
 const updateNote = (title: string, content: string, id: string, noteId: string) => {
-    return axios.post(API_URL + "update-note", {
+    return axios.post(API_URL + "user/update-note", {
         title,
         content,
         id,
@@ -21,14 +23,14 @@ const updateNote = (title: string, content: string, id: string, noteId: string) 
 };
 
 const removeNote = (id: string, noteId: string) => {
-    return axios.post(API_URL + "remove-note", {
+    return axios.post(API_URL + "user/remove-note", {
         id, 
         noteId
     }, { headers: authHeader() });
 };
 
 async function getNotesById(id: string){
-    const response = await axios.post(API_URL + "get-notes-by-id",  
+    const response = await axios.post(API_URL + "user/get-notes-by-id",  
         {
             id
         },
@@ -40,21 +42,18 @@ async function getNotesById(id: string){
 }
 
 async function getAllUsers(){
-    const response = await axios.get(API_URL + "get-all", { headers: authHeader() });
+    const response = await axios.get(API_URL + "user/get-all", { headers: authHeader() });
     
     const users = response.data.data;
 
     return users;
 }
 
-async function getProfile(id: string){
-    const response = await axios.post(API_URL + "profile", 
-    {
-        id
-    },
+async function getProfile(){
+    const response = await axios.get(API_URL + "profile", 
     { headers: authHeader() });
     
-    const profile = response.data.data;
+    const profile = response.data;
     
     return profile;
 }

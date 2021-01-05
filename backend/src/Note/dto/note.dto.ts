@@ -6,6 +6,7 @@ export class AddNoteDto {
     @IsNotEmpty()
     title: string;
 
+    @IsString()
     content: string;
 
     @IsString()

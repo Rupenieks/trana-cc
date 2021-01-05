@@ -1,10 +1,9 @@
 import axios from "axios";
-import userService from "./user.service";
 
 const API_URL = "http://localhost:4001/";
 
 async function register(email, password){
-  const response = await  axios.post(API_URL + "user/register", {
+  const response = await  axios.post(API_URL + "auth/register", {
     email,
     password,
   });
@@ -19,8 +18,9 @@ async function login(email, password) : Promise<boolean> {
         response = await axios
         .post(API_URL + "auth/login", {
           email,
-          password,
+          password
         }); 
+
 
         if (response.data.access_token) {
             if (typeof window !== "undefined") {
@@ -32,7 +32,7 @@ async function login(email, password) : Promise<boolean> {
         
         return true;
     } catch (err) {
-        console.log(err);
+        throw err;
     }
     
 };
@@ -49,32 +49,9 @@ const getCurrentUser = () => {
     }
 };
 
-async function refreshCurrentUser(){
-    let user = getCurrentUser();
-   
-    let newUserObject;
-
-    if (user.data) {
-        newUserObject = await userService.getProfile(user.data._id);
-    } else {
-        newUserObject = await userService.getProfile(user._id);
-    }
-    
-
-    if (newUserObject !== undefined) {
-        if (typeof window !== "undefined") {
-            localStorage.setItem("user", JSON.stringify(newUserObject));
-            return newUserObject;
-        }
-    } else {
-        return null;
-    }
-}
-
 export default {
   register,
   login,
   logout,
-  getCurrentUser,
-  refreshCurrentUser
+  getCurrentUser
 };

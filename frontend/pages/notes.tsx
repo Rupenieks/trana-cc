@@ -1,139 +1,184 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import authHeader from '../services/auth-header';
 import { useRouter } from 'next/router';
 import userService from '../services/user.service';
 import authService from '../services/auth.service';
 import TextEditor from '../components/TextEditor';
 
+
 export default function notes() {
-    const router = useRouter();
-    const [notes, setNotes] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [toggleView, setToggleView] = useState(false);
-    const [selectedNote, setSelectedNote] = useState({});
-    const [user, setUser] = useState({});
-    
-    useEffect(() => {
-        // Check if user object exists
-        if (authHeader() === {}) {
-            router.push('/');
-        }
+	const router = useRouter();
+	const [loading, setLoading] = useState(true);
+	const [user, setUser] = useState();
+	const [notes, setNotes] = useState([]);
+	const [displayedNotes, setDisplayedNotes] = useState([]);
+	const [searchText, setSearchText] = useState('');
+	const [selectedNote, setSelectedNote] = useState();
+	const [isAdmin, setIsAdmin] = useState(false);
 
-        async function initialize(){
-            const user = await authService.refreshCurrentUser();
-        
-            setUser(user);
-            setNotes(user.notes);
-        }
+	useEffect(() => {
 
-        initialize();
+		getUser();
+	}, [])
 
-        
-        return;
-    }, []);
+	useEffect(() => {
+		const newDisplayedNotes = notes.filter(note => note.title.includes(searchText));
+		setDisplayedNotes(newDisplayedNotes);
+	}, [searchText])
 
-    function editNote(e, note: any){
-        e.preventDefault();
-        setToggleView(true);
+	useEffect(() => {
+		if (user !== undefined) {
+			//@ts-ignore
+			setNotes(user.notes);
+			//@ts-ignore
+			setDisplayedNotes(user.notes);
+			setLoading(false);
+		}
 
-        setSelectedNote(note);
-    }
+	}, [user]);
 
-    async function saveNote(content: string){
+	async function getUser() {
+		let user = await userService.getProfile();
+		
+		if (user !== undefined) {
+			setUser(user.user);
+		}
+	}
 
-       await userService.updateNote(
-           //@ts-ignore
-            selectedNote.title,
-            content,
-            //@ts-ignore
-            user._id,
-            //@ts-ignore
-            selectedNote._id);
-        
-        setSelectedNote({...selectedNote, content: content});
-        console.log(user);
-        //@ts-ignore
-        const notes = await userService.getNotesById(user._id);
+	function setNote(note) {
+		const newNote = {...note};
+		setSelectedNote(newNote);
+	}
 
-        setNotes(notes);
-        setToggleView(false);
-    }
+	async function saveNote(content: string) {
+		//@ts-ignore
+		await userService.updateNote(selectedNote.title, content, user._id, selectedNote._id);
+		getUser();
+	}
 
-    useEffect(() => {
+	async function addNote(e) {
+		e.preventDefault();
+		//@ts-ignore
+		await userService.addNote(`note${Math.floor(Math.random() * Math.floor(999))}`, ' ', user._id);
+		getUser();
+	}
 
-    }, [selectedNote])
+	async function removeNote(e) {
+		e.preventDefault();
+		//@ts-ignore
+		await userService.removeNote(user._id, selectedNote._id);
+		getUser();
+	}
 
+	return (
+		<div className="notes-container">
 
-    useEffect(() => {
-        setLoading(false);
+			<div className="navbar-container">
 
-        return;
-    }, [notes])
+				<div className="email-container">
+					Email
+				</div>
 
+				<div className="logout-container">
+					<button>Logout</button>
+				</div>
 
+			</div>
 
-    return (
-        <div className="nodesIndex-container">
-            <div className="sidepanel-container">
-                <div className="username-wrapper">
-                        Username
-                </div>
-                <div className="search-bar-wrapper">
-                    <input type="text"></input>
-                </div>
-                <div className="button-wrapper">
-                    <button>Add</button>
-                </div>
-                <div className="button-wrapper">
-                    <button>Update</button>
-                </div>
-                <div className="button-wrapper">
-                    <button>Remove</button>
-                </div>
-            </div>
-            <div className="main-view-container">
-                {!toggleView && <div className="list-board">{!loading && notes.map(note => (<div className='list-item' onClick={(e) =>editNote(e, note)}>{note.title} </div>))} </div>}
-                {toggleView &&
-                 <TextEditor
-                  note={selectedNote}
-                  saveNote={saveNote}
-                 ></TextEditor> }
-            </div>
+			<div className="main-board-container">
 
-            <style jsx>
-                {`
-                
-                .nodesIndex-container {
-                    width: 100%;
-                    height: 100%;
-                    display: flex;
-                    flex-direction: row;
-                }
+				<div className="sidebar-container">
 
-                .sidepanel-container {
-                    flex: 1;
-                    display: flex;
-                    flex-direction: column;
-                    border: 1px solid black;
-                }
+					<div className="note-list-container">
 
-                .main-view-container{
-                    flex: 5;
-                    border: 1px solid black;
-                }
+						<div className="search-bar-container">
+							<input type="text" onChange={(e) => setSearchText(e.target.value)} />
+						</div>
 
-                .list-item {
-                    flex-wrap: wrap;
-                    height: 10em;
-                    width: 10em;
-                    border: 1px solid black;
-                    text-align: center;
-                }
-                
-                `}
-            </style>
-        </div>
-    )
+						<div className="notes-list">
+							{!loading && displayedNotes.map(note =>
+							<div className="note-item" key={note._id} onClick={() => setNote(note)}>{note.title}</div>)}
+						</div>
+
+						<div className="util-container">
+							<button onClick={addNote}>Add</button>
+							<button onClick={removeNote}>Remove</button>
+						</div>
+					</div>
+				</div>
+
+				<div className="editor-container">
+					{selectedNote !== undefined ?
+										<TextEditor
+										saveNote={saveNote}
+										//@ts-ignore
+										key={selectedNote._id}
+										//@ts-ignore
+										content={selectedNote.content}
+									/> : <div>Select a note</div>}
+
+				</div>
+			</div>
+			<style jsx>
+				{`
+				.search-bar-container {
+					flex: 1;
+				}
+
+				.notes-list {
+					flex: 4;
+				}
+
+				.util-container {
+					flex: 1;
+				}
+				.notes-container {
+					width: 100%;
+					height: 100%;
+					display: flex;
+					flex-direction: column;
+				}
+
+				.navbar-container {
+					display: flex;
+					flex: 1;
+					border: 1px solid black;
+				}
+
+				.email-container {
+					flex: 1;
+				}
+
+				.logout-container {
+					flex: 1;
+				}
+
+				.main-board-container {
+					flex: 9;
+					display: flex;
+					flex-direction: row;
+				}
+
+				.sidebar-container {
+					flex: 2;
+					border: 1px solid black;
+					display: flex;
+					flex-direction: column;
+				}
+
+				.editor-container {
+					flex: 8;
+					border: 1px solid black;
+				}
+
+				.note-list-container {
+					flex: 1;
+				}
+				`}
+			</style>
+		</div>
+	)
 }
+
 
 
