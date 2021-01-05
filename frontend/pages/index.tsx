@@ -18,12 +18,12 @@ export default function Home() {
 
   return (
     <div className="container">
-      <div className="auth-component">
+      <div id="auth-component" className="styled-container">
         <div className="tab-container">
-          <div className="tab" onClick={() => {setAuthType(true)}}>
+          <div className="styled-container" id="tab" onClick={() => {setAuthType(true)}}>
               Login
           </div>
-          <div className="tab" onClick={() => {setAuthType(false)}}>
+          <div className="styled-container" id="tab" onClick={() => {setAuthType(false)}}>
               Register
           </div>
         </div>
@@ -43,21 +43,21 @@ export default function Home() {
           flex-direction: row;
         }
 
-        .tab {
+        #tab {
           padding: 0.5em;
           flex: 1;
           text-align: center;
           border: 1px solid black;
         }
 
-        .auth-component {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          height: 30em;
-          width: 30em;
-          border: 1px solid black;
+        #auth-component {
+			border: dashed 2px #41403E;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			height: 30em;
+			width: 30em;
         }
         
         `}</style>

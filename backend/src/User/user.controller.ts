@@ -16,11 +16,10 @@ export class UserController {
 
   @Roles(Role.Admin)
   @Get('get-all')
-  async getAllUsers(@Body() userAuthDto: UserAuthDto): Promise<HttpResponse> {
-    
+  async getAllUsers(): Promise<HttpResponse> {
     try {
         let users = await this.userService.getAllUsers();
-        
+	
         return {
             success: true,
             msg: 'Fetched users succesfully.',

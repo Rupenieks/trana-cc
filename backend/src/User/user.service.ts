@@ -66,8 +66,8 @@ export class UserService {
 
 		try {
 			let users = await this.userModel.find();
+			
 			return users;
-
 		} catch (err) {
 			throw err;
 		}

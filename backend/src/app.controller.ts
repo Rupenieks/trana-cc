@@ -1,8 +1,11 @@
 import { Controller, Request, Post, UseGuards, Get, Body, HttpException, HttpStatus } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth/auth.service';
+import { Role } from './auth/enums/role.enum';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { LocalAuthGuard } from './auth/local-auth.guard';
+import { Roles } from './auth/roles.decorator';
+import { RolesGuard } from './auth/roles.guard';
 import { HttpResponse } from './types/HttpResponse';
 import { UserAuthDto } from './User/dto/user-auth.dto';
 
@@ -32,6 +35,13 @@ export class AppController {
           msg: err.message
         }
       }
+	}
+	
+	@UseGuards(JwtAuthGuard, RolesGuard)
+	@Roles(Role.Admin)
+	@Get('isadmin')
+    isAdmin(@Request() req) {
+		return req.user;
     }
 
     @UseGuards(JwtAuthGuard)

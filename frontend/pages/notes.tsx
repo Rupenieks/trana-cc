@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import authHeader from '../services/auth-header';
 import { useRouter } from 'next/router';
 import userService from '../services/user.service';
 import authService from '../services/auth.service';
@@ -15,12 +14,16 @@ export default function notes() {
 	const [searchText, setSearchText] = useState('');
 	const [selectedNote, setSelectedNote] = useState();
 	const [isAdmin, setIsAdmin] = useState(false);
+	const [users, setUsers] = useState([]);
+	const [selectedUser, setSelectedUser] = useState();
+	const [selectedUserNotes, setSelectedUserNotes] = useState([]);
 
 	useEffect(() => {
 		if (!authService.checkAuthenticated()) {
 			router.push('/');
 		} else {
 			getUser();
+			checkIsAdmin();
 		}
 		
 	}, [])
@@ -28,7 +31,27 @@ export default function notes() {
 	useEffect(() => {
 		const newDisplayedNotes = notes.filter(note => note.title.includes(searchText));
 		setDisplayedNotes(newDisplayedNotes);
-	}, [searchText])
+	}, [searchText]);
+
+	useEffect(() => {
+		if (selectedUser !== undefined) {
+			//@ts-ignore
+			setSelectedUserNotes(selectedUser.notes);
+		}
+	}, [selectedUser]);
+
+	useEffect(() => {
+		if (users !== undefined && users.length > 0 && selectedUser !== undefined) {
+			//@ts-ignore
+			const user = users.find(user => user._id === selectedUser._id);
+			setSelectedUserNotes(user.notes);
+		}
+	}, [users]);
+
+	useEffect(() => {
+		setDisplayedNotes(notes);
+		setSearchText('');
+	}, [notes]);
 
 	useEffect(() => {
 		if (user !== undefined) {
@@ -55,8 +78,43 @@ export default function notes() {
 		}
 	}
 
+	/* ADMIN STUFF */
+
+	async function checkIsAdmin() {
+		if (await authService.checkIsAdmin()) {
+			setIsAdmin(true);
+			getUsers();
+		}
+	}
+
+	async function getUsers() {
+		const users = await userService.getAllUsers();
+		setUsers(users);
+	}
+
+	function changeSelectedUser(user) {
+		setSelectedUser(user);
+	}
+
+	async function adminRemoveNote(e) {
+		e.preventDefault();
+		//@ts-ignore
+		await userService.removeNote(selectedUser._id, selectedNote._id);
+		getUsers();
+	}
+
+	/* END ADMIN STUFF */
+
 	function setNote(note) {
-		const newNote = {...note};
+		const newNote = { ...note };
+		
+		// //@ts-ignore
+		// if (newNote._id !== user._id) {
+		// 	setReadOnly(true);
+		// } else {
+		// 	setReadOnly(false);
+		// }
+
 		setSelectedNote(newNote);
 	}
 
@@ -83,65 +141,148 @@ export default function notes() {
 	return (
 		<div className="notes-container">
 
-			<div className="navbar-container">
+			<div id="navbar-container" className="styled-container">
 
 				<div className="email-container">
-					Email
+					{isAdmin && 'ADMIN'}
+					{user !== undefined && <p>{user.email}</p>}
+					
 				</div>
 
 				<div className="logout-container">
-					<button onClick={logout}>Logout</button>
+					<button className="styled-container" id="logout-button" onClick={logout}>Logout</button>
 				</div>
 
 			</div>
 
 			<div className="main-board-container">
 
-				<div className="sidebar-container">
+				<div id="sidebar-container" className="styled-container">
 
 					<div className="note-list-container">
 
 						<div className="search-bar-container">
-							<input type="text" onChange={(e) => setSearchText(e.target.value)} />
+							<input placeholder="search" className="styled-container" type="text" onChange={(e) => setSearchText(e.target.value)} />
 						</div>
-
-						<div className="notes-list">
-							{!loading && displayedNotes.map(note =>
+						Your notes
+						<div id="notes-list">
+							{!loading && displayedNotes !== undefined && displayedNotes.map(note =>
 							<div className="note-item" key={note._id} onClick={() => setNote(note)}>{note.title}</div>)}
 						</div>
 
 						<div className="util-container">
-							<button onClick={addNote}>Add</button>
-							<button onClick={removeNote}>Remove</button>
+							<button className="styled-container" id="property-button" onClick={addNote}>Add</button>
+							<button className="styled-container" id="property-button" onClick={removeNote}>Remove</button>
 						</div>
+
 					</div>
+					{isAdmin && 
+						<div className="admin-panel-container">
+						User Notes
+						<div className="selected-user-notes-container">
+								{selectedUserNotes !== undefined && selectedUserNotes.map(note => (
+									<li className="note-item" onClick={() => setSelectedNote(note)}>{note.title}</li>
+								))}
+							</div>
+									<button className="styled-container" id="property-button" onClick={adminRemoveNote}>Remove</button>
+						User List
+						<div className="userlist-container">
+								{users !== undefined &&
+									<ul>
+										{users.map(user => (
+											<li className="note-item" onClick={() => changeSelectedUser(user)}>{user.email}</li>
+										))}
+									</ul>
+								}
+							</div>
+
+						</div>}
 				</div>
 
-				<div className="editor-container">
+				<div id="editor-container" className="styled-container">
 					{selectedNote !== undefined ?
-										<TextEditor
-										saveNote={saveNote}
-										//@ts-ignore
-										key={selectedNote._id}
-										//@ts-ignore
-										content={selectedNote.content}
-									/> : <div>Select a note</div>}
+						<TextEditor
+							saveNote={saveNote}
+							//@ts-ignore
+							key={selectedNote._id}
+							//@ts-ignore
+							content={selectedNote.content}
+						/> :
+						<div>Select a note</div>}
 
 				</div>
 			</div>
 			<style jsx>
 				{`
-				.search-bar-container {
-					flex: 1;
+
+				li {
+					display: block;
 				}
 
-				.notes-list {
+				.admin-panel-container {
+					display: flex;
+					flex: 1;
+					border: 1px solid black;
+					flex-direction: column;
+					height: 100%;
+					width: 100%;
+				}
+
+				.selected-user-notes-container {
+					flex: 1;
+					border: 1px solid black;
+					overflow-y: scroll;
+					height: 100%;
+					width: 100%;
+				}
+
+				.userlist-container {
+					flex: 1;
+					border: 1px solid black;
+					overflow-y: scroll;
+					height: 100%;
+					width: 100%;
+				}
+
+				.user-item {
+					color: red;
+				}
+
+				.user-list {
+					flex: 1;
+					overflow-y: scroll;
+					height: 100%;
+				}
+
+				.note-list-container {
+					flex: 1;
+					width: 100%;
+					height: 100%;
+					display: flex;
+					flex-direction: column;
+				}
+
+				.search-bar-container {
+					flex: 1;
+					height: 100%;
+				}
+
+				#property-button:hover {
+					color: white;
+					background: grey;
+				}
+
+				#notes-list {
+					border: 1px solid black;
+					width: 100%;
 					flex: 4;
+					height: 100%;
 				}
 
 				.util-container {
 					flex: 1;
 				}
+
 				.notes-container {
 					width: 100%;
 					height: 100%;
@@ -149,11 +290,20 @@ export default function notes() {
 					flex-direction: column;
 				}
 
-				.navbar-container {
+				#navbar-container {
 					display: flex;
 					flex: 1;
 					border: 1px solid black;
+					width: 100%;
+					border:dashed 2px #41403E;
 				}
+
+				.note-item:hover {
+					background: black;
+					color: white;
+				}
+
+
 
 				.email-container {
 					flex: 1;
@@ -161,6 +311,16 @@ export default function notes() {
 
 				.logout-container {
 					flex: 1;
+					
+				}
+
+				#logout-button {
+					float: right;
+				}
+
+				#logout-button:hover {
+					background: black;
+					color: white;
 				}
 
 				.main-board-container {
@@ -169,21 +329,26 @@ export default function notes() {
 					flex-direction: row;
 				}
 
-				.sidebar-container {
+				#sidebar-container {
+					height: 100%;
+					width: 100%;
 					flex: 2;
 					border: 1px solid black;
 					display: flex;
 					flex-direction: column;
+					border:dashed 2px #41403E;
 				}
 
-				.editor-container {
+				#editor-container {
 					flex: 8;
 					border: 1px solid black;
+					border:dashed 2px #41403E;
+					height: 90%;
+					width: 90%;
+					overflow-y: scroll;
 				}
 
-				.note-list-container {
-					flex: 1;
-				}
+
 				`}
 			</style>
 		</div>

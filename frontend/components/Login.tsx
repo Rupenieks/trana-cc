@@ -9,15 +9,20 @@ export default function Login() {
 
     function login(e){
         e.preventDefault();
-        if (authService.login(email, password)) {
-            router.push('/notes');
+		if (authService.login(email, password)) {
+			setTimeout(routeToNotes, 1500)
         }
-    }
+	}
+	
+	function routeToNotes() {
+		// Delayed routing due to delay in making localstorage item
+		router.push('/notes');
+	}
 
     return (
         <div className="login-container">
             <form>
-                <div className="label-container">
+                <div id="label-container">
                     <label>
                     email:
                     <input type="email" value={email} onChange={e => setEmail(e.target.value)} />
@@ -45,6 +50,7 @@ export default function Login() {
 
                     .label-container {
                         flex: 1;
+						height: 100%;
                     }
                     `}
             </style>

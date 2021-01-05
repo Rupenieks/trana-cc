@@ -1,20 +1,20 @@
 import axios from "axios";
 import authHeader from "./auth-header";
+import authService from "./auth.service";
 
 const API_URL = "http://localhost:4001/";
 async function addNote(title: string, content: string, id: string){
-    console.log(title, "content: ", content, "id", id);
     const response = await axios.post(API_URL + "user/add-note", {
         title,
         content, 
         id
     }, { headers: authHeader() });
-    console.log(response);
+    
     return response;
 };
 
-const updateNote = (title: string, content: string, id: string, noteId: string) => {
-    return axios.post(API_URL + "user/update-note", {
+async function updateNote(title: string, content: string, id: string, noteId: string){
+    return await axios.post(API_URL + "user/update-note", {
         title,
         content,
         id,
@@ -22,8 +22,8 @@ const updateNote = (title: string, content: string, id: string, noteId: string) 
     }, { headers: authHeader() });
 };
 
-const removeNote = (id: string, noteId: string) => {
-    return axios.post(API_URL + "user/remove-note", {
+async function removeNote(id: string, noteId: string) {
+    return await axios.post(API_URL + "user/remove-note", {
         id, 
         noteId
     }, { headers: authHeader() });
@@ -41,10 +41,17 @@ async function getNotesById(id: string){
     return notes;
 }
 
-async function getAllUsers(){
-    const response = await axios.get(API_URL + "user/get-all", { headers: authHeader() });
-    
-    const users = response.data.data;
+async function getAllUsers() {
+	let users;
+
+	try {
+		const response = await axios.get(API_URL + "user/get-all", { headers: authHeader() });
+		
+		users = response.data.data;
+
+	} catch (err) {
+		throw err;
+	}
 
     return users;
 }

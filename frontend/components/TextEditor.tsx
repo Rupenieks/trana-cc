@@ -6,16 +6,13 @@ export default function TextEditor(props) {
 
     return (
         <div className="editor-container">
-            <button onClick={()=> props.saveNote(editorState)}>Save</button>
+            <button id="save-button" className="styled-container" onClick={()=> props.saveNote(editorState)}>Save</button>
             <div className="editor-wrapper">
-      
                     <Editor
                     onChange={setEditorState}
-                    defaultValue={props.content}
+					defaultValue={props.content}
+					readOnly={props.readOnly}
                     />  
-
- 
-
             </div>
             <style jsx>
                 {`
@@ -31,6 +28,15 @@ export default function TextEditor(props) {
                     height: 100%;
                     width: 100%;
                 }
+
+				#save-button {
+					float: right;
+				}
+
+				#save-button:hover {
+					color: white;
+					background: grey;
+				}
                 `}
             </style>
         </div>
