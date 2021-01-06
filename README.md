@@ -1,4 +1,4 @@
-#Trana Coding Challenge
+# Trana Coding Challenge
 
 Small application allowing a user to create, edit and remove notes with a WYSIWYG text editor. Provides admin functionality too.
 
