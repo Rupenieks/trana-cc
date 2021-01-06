@@ -10,8 +10,6 @@ services:
       - 4001:4001
     links:
       - mongo
-    volumes:
-      - .:/usr/src/app
     environment:
       MONGO_USER: root
       MONGO_PASSWORD: example
