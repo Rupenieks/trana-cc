@@ -10,7 +10,8 @@ Created with React, Next.js on Frontend. NestJs, Mongo DB on backend.
 
 ## How to Run
 
-Open terminal/cmd window and run "docker-compose up" from root directory.
+1. Open terminal/cmd window in root directory.
+2. docker-compose up
 
 ### Access
 - Frontend accessed via browser at: localhost:3000/
