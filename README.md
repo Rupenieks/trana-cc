@@ -27,23 +27,23 @@ Created with React, Next.js on Frontend. NestJs, Mongo DB on backend.
 
 ## Features:
 ### Backend: 
--Nest.Js setup
--MongoDB Database (w/ Mongoose)
--Admin/User role checking on specific API endpoints
--Password encryption and checking 
--Jwt token authentication 
--API endpoints for all needed operations
+- Nest.Js setup
+- MongoDB Database (w/ Mongoose)
+- Admin/User role checking on specific API endpoints
+- Password encryption and checking 
+- Jwt token authentication 
+- API endpoints for all needed operations
 
 ### Frontend:
--Login / Register screen
--Dashboard
--Note filtering by search bar
--Add / Remove / Update notes
--WYSIWYG Text editor
--Admin page (admin)
--View users / look through their notes (admin)
--Remove user notes (admin)
--Authentication (jwt) handled with localstorage by placing it in header of every relevant request sent to backend
+- Login / Register screen
+- Dashboard
+- Note filtering by search bar
+- Add / Remove / Update notes
+- WYSIWYG Text editor
+- Admin page (admin)
+- View users / look through their notes (admin)
+- Remove user notes (admin)
+- Authentication (jwt) handled with localstorage by placing it in header of every relevant request sent to backend
 
 
 
